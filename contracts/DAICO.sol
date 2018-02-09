@@ -4,40 +4,70 @@ import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/token/ERC827/ERC827Token.sol';
 
-
 /**
  * DAICO = DAO + ICO
  * Proposed by Vitalik Buterin - https://ethresear.ch/t/explanation-of-daicos/465
  * WIP Implementation
  */
 contract DAICO is Ownable {
-	// Initialize SafeMath Library
+	/** 
+	 * Initialize SafeMath Library
+	 */
 	using SafeMath for uint256;
 
-	// DAO State Variables
+	/** 
+	 * Events
+	 */
+	event Deposit(address sender, uint256 amount);
+	event ProposalCreated();
+	event ProposalVoted();
+	event ProposalApproved();
+	event ProposalDenied();
+	event ManagerAdded();
+	event ManagerRemoved();
+	event ProjectShutdownProposed();
+	event ProjectshutdownSuccess();
+
+	/** 
+	 * DAO State Variables
+	 */
 	ERC827Token public token;
-	uint256 tap;
-	uint256 lastWithdrawn;
+	uint256 public tap;
+	uint256 public lastWithdrawn;
+	uint256 public quorumPercentage;
+	uint256 public proposalExpiration;
 
-	// Management
-	Management[] managers;
-	uint numManagers;
-	mapping(address => bool) managerLookup;
+	/** 
+	 * Management Variables
+	 */
+	Management[] public managers;
+	mapping(address => bool) public isManager;
+	
+	/**
+	 * Proposal Variables
+	 */
+	Proposals[] public proposals;
 
-	// Contract Systems State
-	enum FundraisingState { OrginizationSetup, FundraisingStart, FundRaisingEnd, OrginizationActive }
-	FundraisingState daicoState;
+	/** 
+	 * Contract System State Variables
+	 */
+	enum FundraisingState { ProjectSetup, FundraisingStart, FundRaisingEnd, ProjectActive, ProjectShutdown }
+	FundraisingState public daicoState;
 
-	//Structs
+	/** 
+	 * Structs
+	 */
 	struct Management {
 		address addr;
 		string name;
 		string title;
 	}
 
-	// Modifiers
+	/** 
+	 * Modifiers
+	 */
 	modifier onlyManagement {
-		require(managerLookup[msg.sender]);
+		require(isManager[msg.sender]);
 		_;
 	}
 
@@ -58,19 +88,49 @@ contract DAICO is Ownable {
 		managerLookup[msg.sender] = true;
 	}
 
-	function voteToAddManager(address addr, string name, string title) {
-		
+	/**
+	 * @dev Fundraising Endpoint (Default Payable) to accept funds for ICO
+	 */
+	function () payable {
+		// Check that DAICO is in fundraising state
+		require(msg.value > 0 && daicoState == FundraisingState.FundraisingStart)
+		// TODO: Perform Token Sale Actions
+
+		// Send Event to Frontend
+		Deposit(msg.sender, msg.value);
 	}
 
-	function voteToRemoveManager(address addr) {
+	/**
+	 * @dev Allows current managers to vote to add a new manager, requires 2/3 consensus
+	 * @param addr Address of the new manager
+	 * @param name Name of the new manager
+	 * @param title Title/Position of the new manager
+	 */
+	function addManager(address addr, string name, string title) onlyManagement {}
 
-	}
+	/**
+	 * @dev Allows current managers to vote to remove a new manager, requires 2/3 consensus
+	 * @param addr Address of the manager
+	 */
+	function removeManager(address addr) onlyManagement {}
 
-	function createProposal() onlyOwner {
+	/** 
+	 * @dev Allows managers to propose a fund request from the investors
+	 * @param 
+	 */
+	function createProposal() onlyManagement {}
 
-	}
+	/**
+	 * @dev Allows token holders to vote on proposal requests
+	 * @param 
+	 * 
+	 * 
+	 */
+	function proposalVote(uint propsalId, bool action, string comments) onlyTokenHolder {}
 
-	function voteOnProposal(uint propsalId) onlyTokenHolder {
+	function proposeNewQuorumPercentage() {}
 
-	}
+	function proposeExpirationPeriod() {}
+
+	function proposeProjectShutdown() {}
 }
