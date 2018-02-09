@@ -25,7 +25,7 @@ contract DAICO is Ownable {
 	mapping(address => bool) managerLookup;
 
 	// Contract Systems State
-	enum FundraisingState { FundraisingStart, FundRaisingEnd, OrginizationActive }
+	enum FundraisingState { OrginizationSetup, FundraisingStart, FundRaisingEnd, OrginizationActive }
 	FundraisingState daicoState;
 
 	//Structs
@@ -50,7 +50,12 @@ contract DAICO is Ownable {
 	 * Constructor function
 	 */
 	function DAICO() {
-		
+		// Set DAICO State to Setup Mode
+		daicoState = FundraisingState.OrginizationSetup;
+		// Set up first manager as contract creator
+		Management firstManager = Management(msg.sender, '', '');
+		managers.add(firstManager);
+		managerLookup[msg.sender] = true;
 	}
 
 	function voteToAddManager(address addr, string name, string title) {
