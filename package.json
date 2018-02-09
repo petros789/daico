@@ -1,0 +1,28 @@
+{
+  "name": "daico",
+  "version": "1.0.0",
+  "description": "DAICO = DAO + ICO",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petros789/daico.git"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "ico",
+    "dao"
+  ],
+  "author": "Petros Ring <me@petros789.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/petros789/daico/issues"
+  },
+  "homepage": "https://github.com/petros789/daico#readme"
+}
