@@ -42,6 +42,8 @@ contract DAICO is Ownable {
 	 */
 	Management[] public managers;
 	mapping(address => bool) public isManager;
+	mapping(address => uint256) public managerAdd;
+	mapping(address => uint256) public managerRemove;
 	
 	/**
 	 * Proposal Variables
@@ -52,8 +54,8 @@ contract DAICO is Ownable {
 	/** 
 	 * Token Holder Variables
 	 */
-	uint256 minimumTokens; // Mininum token amount to vote for an address
-	mapping(address => uint256) holderStartDate; // Date token holder registered
+	uint256 public minimumTokens; // Mininum token amount to vote for an address
+	mapping(address => uint256) public holderStartDate; // Date token holder registered
 
 	/** 
 	 * Contract System State Variables
@@ -84,6 +86,11 @@ contract DAICO is Ownable {
 		_;
 	}
 
+	modifier managerDoesNotExist(address owner) {
+        require(!isManager[owner]);
+        _;
+    }
+
 	modifier onlyTokenHolder {
 		require(token.balanceOf(msg.sender) > minimumTokens);
 		_;
@@ -93,6 +100,11 @@ contract DAICO is Ownable {
 		require(daicoState == FundraisingState.ProjectActive);
 		_;
 	}
+
+	modifier notNull(address _address) {
+        require(_address != 0);
+        _;
+    }
 
 	/** 
 	 * Constructor function
@@ -107,6 +119,7 @@ contract DAICO is Ownable {
 			title: '', 
 			active: true
 		}));
+		// Set Manager existence in mapping
 		isManager[msg.sender] = true;
 		// Set Mininum token amount
 		minimumTokens = _mininumTokens;
@@ -130,7 +143,9 @@ contract DAICO is Ownable {
 	 * @param name Name of the new manager
 	 * @param title Title/Position of the new manager
 	 */
-	function addManager(address addr, string name, string title) public onlyManagement {}
+	function addManager(address addr, string name, string title) public onlyManagement notNull(addr) managerDoesNotExist(addr) {
+		
+	}
 
 	/**
 	 * @dev Allows current managers to vote to remove a new manager, requires 2/3 consensus
@@ -146,7 +161,7 @@ contract DAICO is Ownable {
 	/**
 	 * @dev Allows token holders to vote on proposal requests
 	 */
-	function proposalVote(uint propsalId, bool action, string comments) public onlyTokenHolder projectActive {}
+	function proposalVote(uint propsalId, bool action) public onlyTokenHolder projectActive {}
 
 	/**
 	 * @dev  
