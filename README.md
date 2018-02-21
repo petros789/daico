@@ -7,6 +7,7 @@ This is an working version that has not been audited, use at your own risk.
 
 ### To Install
 `npm init`
+
 `npm install zeppelin-solidity`
 
 
