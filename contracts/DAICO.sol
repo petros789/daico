@@ -46,7 +46,7 @@ contract DAICO is Ownable {
 	/**
 	 * Proposal Variables
 	 */
-	Proposals[] public proposals;
+	Proposal[] public proposals;
 	mapping(uint256 => mapping (address => bool)) public responses;
 
 	/** 
@@ -73,7 +73,7 @@ contract DAICO is Ownable {
 
 	struct Proposal {
 		address creator;
-
+		bool projectShutdown;
 	}
 
 	/** 
@@ -89,16 +89,25 @@ contract DAICO is Ownable {
 		_;
 	}
 
+	modifier projectActive {
+		require(daicoState == FundraisingState.ProjectActive);
+		_;
+	}
+
 	/** 
 	 * Constructor function
 	 */
-	function DAICO(uint256 _mininumTokens) {
+	function DAICO(uint256 _mininumTokens) public {
 		// Set DAICO State to Setup Mode
-		daicoState = FundraisingState.OrginizationSetup;
+		daicoState = FundraisingState.ProjectSetup;
 		// Set up first manager as contract creator
-		Management firstManager = Management(msg.sender, '', '');
-		managers.add(firstManager);
-		managerLookup[msg.sender] = true;
+		managers.push(Management({
+			addr: msg.sender, 
+			name: '', 
+			title: '', 
+			active: true
+		}));
+		isManager[msg.sender] = true;
 		// Set Mininum token amount
 		minimumTokens = _mininumTokens;
 	}
@@ -131,25 +140,23 @@ contract DAICO is Ownable {
 
 	/** 
 	 * @dev Allows managers to propose a fund request from the investors
-	 * @param 
 	 */
-	function createProposal() public onlyManagement {}
+	function createProposal() public onlyManagement projectActive {}
 
 	/**
 	 * @dev Allows token holders to vote on proposal requests
-	 * @param 
 	 */
-	function proposalVote(uint propsalId, bool action, string comments) public onlyTokenHolder {}
+	function proposalVote(uint propsalId, bool action, string comments) public onlyTokenHolder projectActive {}
 
 	/**
 	 * @dev  
 	 */
-	function proposeProjectShutdown() public onlyTokenHolder {}
+	function proposeProjectShutdown() public onlyTokenHolder projectActive {}
 
 	/**
 	 * @dev Register token holding address to be able to vote
 	 */
-	function registerAddress() public onlyTokenHolder {
+	function registerAddress() public onlyTokenHolder projectActive {
 		holderStartDate[msg.sender] = block.timestamp;
 	}
 
